@@ -49,8 +49,8 @@ async function bootstrap(): Promise<void> {
   const mobileUI = new MobileUI(shell, engine);
   const touchControls = new TouchControls(shell, canvas, engine);
 
-  touchControls.mount();
   mobileUI.mount();
+  touchControls.mount();
 
   (window as unknown as { __gameEngine?: GameEngine }).__gameEngine = engine;
 

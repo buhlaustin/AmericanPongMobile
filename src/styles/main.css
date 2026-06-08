@@ -124,7 +124,7 @@ body,
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 20;
+  z-index: 30;
 }
 
 #ui-layer .screen,
@@ -134,6 +134,7 @@ body,
 
 #btn-pause {
   pointer-events: auto;
+  z-index: 31;
 }
 
 .screen {
@@ -296,7 +297,7 @@ body,
 #touch-play-zone {
   position: absolute;
   inset: 0;
-  z-index: 24;
+  z-index: 10;
   pointer-events: auto;
   touch-action: none;
 }
@@ -309,7 +310,6 @@ body,
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 26;
 }
 
 .control-btn {

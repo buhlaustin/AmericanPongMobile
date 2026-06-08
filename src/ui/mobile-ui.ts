@@ -269,13 +269,17 @@ export class MobileUI {
   }
 
   private bindGameControls(): void {
-    this.btnPause.addEventListener('click', (e) => {
+    const pause = (e: Event) => {
+      e.preventDefault();
       e.stopPropagation();
       if (this.engine.state.phase === 'playing') {
         this.engine.pause();
         this.sync();
       }
-    });
+    };
+
+    this.btnPause.addEventListener('click', pause);
+    this.btnPause.addEventListener('pointerdown', pause);
   }
 
   private showStats(): void {

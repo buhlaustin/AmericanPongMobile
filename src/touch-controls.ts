@@ -31,7 +31,10 @@ export class TouchControls {
   private onPointerDown(e: PointerEvent): void {
     if (this.engine.state.phase !== 'playing') return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (this.isPauseTarget(e.target)) return;
+    if (this.isPauseTarget(e.target) || this.isPauseArea(e.clientX, e.clientY)) {
+      this.engine.pause();
+      return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
@@ -83,6 +86,15 @@ export class TouchControls {
 
   private isPauseTarget(target: EventTarget | null): boolean {
     return target instanceof HTMLElement && Boolean(target.closest('#btn-pause'));
+  }
+
+  private isPauseArea(clientX: number, clientY: number): boolean {
+    const rect = this.shell.getBoundingClientRect();
+    const margin = 72;
+    return (
+      clientX >= rect.right - margin &&
+      clientY <= rect.top + margin
+    );
   }
 
   private clearPointer(): void {

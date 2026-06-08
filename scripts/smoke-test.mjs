@@ -58,8 +58,9 @@ try {
     throw new Error(`Ball did not launch: ${JSON.stringify(afterServe)}`);
   }
 
-  await page.touchscreen.tap(box.x + box.width * 0.18, box.y + box.height * 0.5);
-  await page.touchscreen.tap(box.x + box.width * 0.18, box.y + box.height * 0.72);
+  await page.locator('#btn-pause').tap();
+  await page.waitForFunction(() => window.__gameEngine?.state.phase === 'paused');
+  await page.getByRole('button', { name: 'Resume' }).waitFor({ state: 'visible' });
 
   console.log('SMOKE TEST PASSED', afterServe);
 } finally {
