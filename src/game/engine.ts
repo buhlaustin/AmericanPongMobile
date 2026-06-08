@@ -199,6 +199,14 @@ export class GameEngine {
     this.touchTargetY = y;
   }
 
+  isBallTap(x: number, y: number): boolean {
+    const s = this.state;
+    if (s.phase !== 'playing' || !s.serving) return false;
+    const ball = s.ball;
+    const tapRadius = Math.max(ball.radius * 3, 44);
+    return Math.hypot(x - ball.x, y - ball.y) <= tapRadius;
+  }
+
   private resetBall(direction: number): void {
     const s = this.state;
     s.ball = this.createBall();

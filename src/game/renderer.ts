@@ -117,6 +117,9 @@ export class Renderer {
 
     this.drawPaddle(ctx, margin, s.playerY, pw, s.playerPaddleHeight, '#58a6ff', s.activePowerUps.some((p) => p.type === 'shield' && p.owner === 'player'));
     this.drawPaddle(ctx, w - margin - pw, s.cpuY, pw, s.cpuPaddleHeight, '#bf0a30', false);
+    if (s.serving) {
+      this.drawServeHint(ctx, s.ball.x, s.ball.y, s.ball.radius);
+    }
     this.drawBall(ctx, s.ball);
 
     this.drawHud(ctx, w, h, s.playerScore, s.cpuScore, s.message, s.messageTimer > 0 ? s.message : '', s.combo, s.mode === 'survival' ? s.survivalTime : null);
@@ -141,6 +144,15 @@ export class Renderer {
     ctx.fillStyle = 'rgba(255,255,255,0.18)';
     roundRect(ctx, x + 3, y + 4, 4, h - 8, 2);
     ctx.fill();
+  }
+
+  private drawServeHint(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number): void {
+    const pulse = 0.55 + Math.sin(performance.now() / 180) * 0.2;
+    ctx.strokeStyle = `rgba(88, 166, 255, ${pulse})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, radius * 2.4, 0, Math.PI * 2);
+    ctx.stroke();
   }
 
   private drawBall(ctx: CanvasRenderingContext2D, ball: { x: number; y: number; radius: number; ghost: boolean; trail: { x: number; y: number }[] }): void {

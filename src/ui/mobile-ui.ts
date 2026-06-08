@@ -13,9 +13,6 @@ export class MobileUI {
   private victoryScreen!: HTMLElement;
   private statsScreen!: HTMLElement;
   private gameControls!: HTMLElement;
-  private btnUp!: HTMLButtonElement;
-  private btnDown!: HTMLButtonElement;
-  private btnServe!: HTMLButtonElement;
   private btnPause!: HTMLButtonElement;
   private gameOverTitle!: HTMLElement;
   private gameOverDetail!: HTMLElement;
@@ -117,11 +114,6 @@ export class MobileUI {
         </div>
 
         <div id="game-controls" class="hidden">
-          <div class="control-cluster control-move">
-            <button id="btn-up" class="control-btn" type="button" aria-label="Move paddle up">▲</button>
-            <button id="btn-down" class="control-btn" type="button" aria-label="Move paddle down">▼</button>
-          </div>
-          <button id="btn-serve" class="control-btn control-serve hidden" type="button">Serve</button>
           <button id="btn-pause" class="control-btn control-pause" type="button" aria-label="Pause game">⏸</button>
         </div>
       </div>
@@ -137,9 +129,6 @@ export class MobileUI {
     this.victoryScreen = this.q('#victory-screen');
     this.statsScreen = this.q('#stats-screen');
     this.gameControls = this.q('#game-controls');
-    this.btnUp = this.q('#btn-up');
-    this.btnDown = this.q('#btn-down');
-    this.btnServe = this.q('#btn-serve');
     this.btnPause = this.q('#btn-pause');
     this.gameOverTitle = this.q('#gameover-title');
     this.gameOverDetail = this.q('#gameover-detail');
@@ -193,12 +182,6 @@ export class MobileUI {
       this.levelCompleteTitle.textContent = boss?.name ?? '';
     }
 
-    if (phase === 'playing') {
-      const showServe = s.serving;
-      this.toggle(this.btnServe, showServe);
-      this.btnServe.textContent = 'Serve';
-      this.btnServe.classList.toggle('pulse', showServe);
-    }
   }
 
   private buildModeList(): void {
@@ -286,21 +269,6 @@ export class MobileUI {
   }
 
   private bindGameControls(): void {
-    const press = (dir: 'up' | 'down', active: boolean) => {
-      this.engine.keys[dir] = active;
-    };
-
-    this.holdButton(this.btnUp, () => press('up', true), () => press('up', false));
-    this.holdButton(this.btnDown, () => press('down', true), () => press('down', false));
-
-    this.btnServe.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (this.engine.state.phase === 'playing' && this.engine.state.serving) {
-        this.engine.serve();
-        this.sync();
-      }
-    });
-
     this.btnPause.addEventListener('click', (e) => {
       e.stopPropagation();
       if (this.engine.state.phase === 'playing') {
@@ -308,27 +276,6 @@ export class MobileUI {
         this.sync();
       }
     });
-  }
-
-  private holdButton(btn: HTMLButtonElement, onPress: () => void, onRelease: () => void): void {
-    const start = (e: Event) => {
-      e.preventDefault();
-      e.stopPropagation();
-      btn.classList.add('pressed');
-      onPress();
-    };
-    const end = (e: Event) => {
-      e.preventDefault();
-      btn.classList.remove('pressed');
-      onRelease();
-    };
-
-    btn.addEventListener('touchstart', start, { passive: false });
-    btn.addEventListener('touchend', end, { passive: false });
-    btn.addEventListener('touchcancel', end, { passive: false });
-    btn.addEventListener('mousedown', start);
-    btn.addEventListener('mouseup', end);
-    btn.addEventListener('mouseleave', end);
   }
 
   private showStats(): void {

@@ -1,12 +1,12 @@
 import { App } from '@capacitor/app';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import './styles/main.css';
 import { GameEngine } from './game/engine';
 import { Renderer } from './game/renderer';
 import { loadStats, saveStats, ACHIEVEMENTS } from './game/storage';
-import { hideSplashScreen } from './splash';
+import { hideSplashScreen, revealWebSplash } from './splash';
 import { MobileUI } from './ui/mobile-ui';
+import { TouchControls } from './touch-controls';
 
 async function initCapacitor(engine: GameEngine, mobileUI: MobileUI): Promise<void> {
   try {
@@ -41,12 +41,16 @@ const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const toast = document.getElementById('achievement-toast')!;
 
 async function bootstrap(): Promise<void> {
+  await revealWebSplash();
+
   const stats = await loadStats();
   const engine = new GameEngine(stats);
   const renderer = new Renderer(canvas, engine);
   const mobileUI = new MobileUI(shell, engine);
+  const touchControls = new TouchControls(shell, canvas, engine);
 
   mobileUI.mount();
+  touchControls.mount();
 
   engine.onStatsChange = (s) => void saveStats(s);
   engine.onAchievement = (id) => {
@@ -62,16 +66,12 @@ async function bootstrap(): Promise<void> {
     engine.tick(ts);
     renderer.render(engine.stats);
     mobileUI.sync();
+    touchControls.sync();
     requestAnimationFrame(loop);
   }
 
   await initCapacitor(engine, mobileUI);
   await hideSplashScreen();
-  try {
-    await SplashScreen.hide();
-  } catch {
-    /* web dev */
-  }
   requestAnimationFrame(loop);
 }
 

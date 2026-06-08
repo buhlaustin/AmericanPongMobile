@@ -32,13 +32,13 @@ The debug APK is saved to:
 
 ## Controls
 
-All controls are on-screen tap buttons — no keyboard required.
+Touch-first — no keyboard required. Landscape by default.
 
-| Button | Action |
-|--------|--------|
-| ▲ / ▼ | Move paddle up / down (hold to move) |
-| Serve | Launch the ball when serving |
-| ⏸ | Pause the match |
+| Gesture | Action |
+|---------|--------|
+| Touch & drag (left side) | Move your paddle |
+| Tap the ball | Serve when the ball is waiting |
+| ⏸ button | Pause the match |
 | Menu buttons | Navigate modes, difficulty, stats, and results |
 
 ## Original
