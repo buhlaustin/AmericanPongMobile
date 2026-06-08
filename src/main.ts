@@ -52,6 +52,8 @@ async function bootstrap(): Promise<void> {
   touchControls.mount();
   mobileUI.mount();
 
+  (window as unknown as { __gameEngine?: GameEngine }).__gameEngine = engine;
+
   engine.onStatsChange = (s) => void saveStats(s);
   engine.onAchievement = (id) => {
     const info = ACHIEVEMENTS[id];

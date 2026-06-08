@@ -3,7 +3,6 @@ import type { GameEngine } from './game/engine';
 export class TouchControls {
   private zone!: HTMLElement;
   private activePointer: number | null = null;
-  private tapStart: { x: number; y: number } | null = null;
 
   constructor(
     private shell: HTMLElement,
@@ -21,12 +20,6 @@ export class TouchControls {
     this.zone.addEventListener('pointermove', (e) => this.onPointerMove(e), { passive: false });
     this.zone.addEventListener('pointerup', (e) => this.onPointerUp(e), { passive: false });
     this.zone.addEventListener('pointercancel', (e) => this.onPointerUp(e), { passive: false });
-
-    // Fallback for older Android WebView touch event paths.
-    this.zone.addEventListener('touchstart', (e) => this.onTouchFallback(e), { passive: false });
-    this.zone.addEventListener('touchmove', (e) => this.onTouchMoveFallback(e), { passive: false });
-    this.zone.addEventListener('touchend', (e) => this.onTouchEndFallback(e), { passive: false });
-    this.zone.addEventListener('touchcancel', () => this.clearPointer(), { passive: false });
   }
 
   sync(): void {
@@ -43,17 +36,21 @@ export class TouchControls {
     e.preventDefault();
     e.stopPropagation();
     this.activePointer = e.pointerId;
-    this.tapStart = { x: e.clientX, y: e.clientY };
     this.zone.setPointerCapture(e.pointerId);
 
+    if (this.engine.state.serving) {
+      this.engine.tapToServe();
+      return;
+    }
+
     const point = this.toCanvasPoint(e.clientX, e.clientY);
-    if (this.tryServe(point.x, point.y)) return;
     this.updatePaddle(point.x, point.y);
   }
 
   private onPointerMove(e: PointerEvent): void {
     if (this.engine.state.phase !== 'playing') return;
     if (this.activePointer !== e.pointerId) return;
+    if (this.engine.state.serving) return;
 
     e.preventDefault();
     const point = this.toCanvasPoint(e.clientX, e.clientY);
@@ -62,83 +59,25 @@ export class TouchControls {
 
   private onPointerUp(e: PointerEvent): void {
     if (this.activePointer !== e.pointerId) return;
-
     e.preventDefault();
-    const point = this.toCanvasPoint(e.clientX, e.clientY);
 
-    if (this.tapStart) {
-      const moved = Math.hypot(e.clientX - this.tapStart.x, e.clientY - this.tapStart.y);
-      if (moved < 16) {
-        this.tryServe(point.x, point.y);
-      }
+    if (this.engine.state.serving) {
+      this.engine.tapToServe();
     }
 
     this.clearPointer();
-  }
-
-  private onTouchFallback(e: TouchEvent): void {
-    if (this.engine.state.phase !== 'playing') return;
-    if (this.activePointer !== null) return;
-
-    e.preventDefault();
-    const touch = e.changedTouches[0] ?? e.touches[0];
-    if (!touch) return;
-
-    this.tapStart = { x: touch.clientX, y: touch.clientY };
-    const point = this.toCanvasPoint(touch.clientX, touch.clientY);
-    if (this.tryServe(point.x, point.y)) return;
-    this.updatePaddle(point.x, point.y);
-  }
-
-  private onTouchMoveFallback(e: TouchEvent): void {
-    if (this.engine.state.phase !== 'playing') return;
-    if (this.activePointer !== null) return;
-
-    e.preventDefault();
-    const touch = e.touches[0];
-    if (!touch) return;
-    const point = this.toCanvasPoint(touch.clientX, touch.clientY);
-    this.updatePaddle(point.x, point.y);
-  }
-
-  private onTouchEndFallback(e: TouchEvent): void {
-    if (this.activePointer !== null) return;
-
-    e.preventDefault();
-    const touch = e.changedTouches[0];
-    if (!touch || !this.tapStart) {
-      this.clearPointer();
-      return;
-    }
-
-    const moved = Math.hypot(touch.clientX - this.tapStart.x, touch.clientY - this.tapStart.y);
-    const point = this.toCanvasPoint(touch.clientX, touch.clientY);
-    if (moved < 18) {
-      this.tryServe(point.x, point.y);
-    }
-    this.clearPointer();
-  }
-
-  private tryServe(x: number, y: number): boolean {
-    if (!this.engine.state.serving) return false;
-    if (!this.engine.canServeFromTap(x, y)) return false;
-    this.engine.serve();
-    return true;
   }
 
   private updatePaddle(x: number, y: number): void {
-    if (this.engine.state.serving) return;
     if (x > this.engine.width * 0.55) return;
     this.engine.setTouchTarget(y);
   }
 
   private toCanvasPoint(clientX: number, clientY: number): { x: number; y: number } {
     const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.engine.width / Math.max(rect.width, 1);
-    const scaleY = this.engine.height / Math.max(rect.height, 1);
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
+      x: ((clientX - rect.left) / Math.max(rect.width, 1)) * this.engine.width,
+      y: ((clientY - rect.top) / Math.max(rect.height, 1)) * this.engine.height,
     };
   }
 
@@ -147,8 +86,14 @@ export class TouchControls {
   }
 
   private clearPointer(): void {
+    if (this.activePointer !== null) {
+      try {
+        this.zone.releasePointerCapture(this.activePointer);
+      } catch {
+        /* ignore */
+      }
+    }
     this.activePointer = null;
-    this.tapStart = null;
     this.engine.setTouchTarget(null);
   }
 }

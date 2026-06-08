@@ -92,9 +92,22 @@ export class GameEngine {
   }
 
   setCanvasSize(w: number, h: number): void {
+    if (w <= 0 || h <= 0) return;
+    if (Math.abs(this.width - w) < 0.5 && Math.abs(this.height - h) < 0.5) return;
+
+    const oldW = this.width || w;
+    const oldH = this.height || h;
+    const scaleX = w / oldW;
+    const scaleY = h / oldH;
+
     this.width = w;
     this.height = h;
-    this.resetPositions();
+
+    const s = this.state;
+    s.playerY = this.clamp(s.playerY * scaleY, 0, this.height - s.playerPaddleHeight);
+    s.cpuY = this.clamp(s.cpuY * scaleY, 0, this.height - s.cpuPaddleHeight);
+    s.ball.x *= scaleX;
+    s.ball.y *= scaleY;
   }
 
   private resetPositions(): void {
@@ -147,8 +160,7 @@ export class GameEngine {
     this.wasDown52 = false;
     this.ai.reset();
     this.resetPositions();
-    s.serveTimer = 1.2;
-    s.message = 'Get ready!';
+    s.message = 'Tap the ball to serve';
     s.messageTimer = 1.5;
     audio.play('menu');
   }
@@ -191,25 +203,18 @@ export class GameEngine {
     s.ball.vy = Math.sin(angle) * speed;
     s.serving = false;
     s.serveTimer = 0;
+    s.ball.trail = [];
     audio.play('serve');
     void this.haptic(ImpactStyle.Light);
   }
 
-  setTouchTarget(y: number | null): void {
-    this.touchTargetY = y;
+  tapToServe(): void {
+    if (this.state.phase !== 'playing' || !this.state.serving) return;
+    this.serve();
   }
 
-  canServeFromTap(x: number, y: number): boolean {
-    const s = this.state;
-    if (s.phase !== 'playing' || !s.serving) return false;
-
-    const ball = s.ball;
-    const ballRadius = Math.max(ball.radius * 4.5, 72);
-    if (Math.hypot(x - ball.x, y - ball.y) <= ballRadius) return true;
-
-    // Generous center-court tap while serving.
-    const centerRadius = Math.min(this.width, this.height) * 0.38;
-    return Math.hypot(x - this.width / 2, y - this.height / 2) <= centerRadius;
+  setTouchTarget(y: number | null): void {
+    this.touchTargetY = y;
   }
 
   private resetBall(direction: number): void {

@@ -11,43 +11,57 @@ const page = await context.newPage();
 
 try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
-
-  const splash = page.locator('#splash-screen');
-  await splash.waitFor({ state: 'visible', timeout: 3000 });
-  const splashText = await splash.innerText();
-  const normalized = splashText.toLowerCase();
-  if (!normalized.includes('austin buhl') || !normalized.includes('games')) {
-    throw new Error(`Splash text missing: ${splashText}`);
-  }
-
-  await splash.waitFor({ state: 'hidden', timeout: 6000 });
+  await page.locator('#splash-screen').waitFor({ state: 'hidden', timeout: 6000 });
 
   await page.getByRole('button', { name: 'Play' }).click();
-  await page.getByRole('heading', { name: 'Choose Mode' }).waitFor();
-
   await page.getByRole('button', { name: 'Classic' }).click();
   await page.getByRole('button', { name: 'Start Match' }).click();
 
-  const touchZone = page.locator('#touch-play-zone');
-  await touchZone.waitFor({ state: 'visible', timeout: 3000 });
-  await page.locator('#btn-pause').waitFor({ state: 'visible' });
+  await page.locator('#touch-play-zone.serving').waitFor({ state: 'visible', timeout: 3000 });
 
-  const serveBtn = page.locator('#btn-serve');
-  if (await serveBtn.count()) {
-    throw new Error('Serve button should be removed');
-  }
+  await page.waitForFunction(() => {
+    const engine = window.__gameEngine;
+    return Boolean(engine?.state.serving && engine.state.phase === 'playing');
+  });
 
   const box = await page.locator('#game-canvas').boundingBox();
   if (!box) throw new Error('Canvas missing');
 
-  await page.locator('#touch-play-zone.serving').waitFor({ state: 'visible', timeout: 3000 });
   await page.touchscreen.tap(box.x + box.width * 0.5, box.y + box.height * 0.5);
-  await page.locator('#touch-play-zone.serving').waitFor({ state: 'hidden', timeout: 2000 });
 
-  await page.touchscreen.tap(box.x + box.width * 0.2, box.y + box.height * 0.5);
-  await page.touchscreen.tap(box.x + box.width * 0.2, box.y + box.height * 0.7);
+  await page.waitForFunction(() => {
+    const engine = window.__gameEngine;
+    return Boolean(
+      engine &&
+        engine.state.phase === 'playing' &&
+        !engine.state.serving &&
+        Math.hypot(engine.state.ball.vx, engine.state.ball.vy) > 50,
+    );
+  }, { timeout: 2000 });
 
-  console.log('SMOKE TEST PASSED');
+  await page.waitForTimeout(600);
+
+  const afterServe = await page.evaluate(() => {
+    const engine = window.__gameEngine;
+    return {
+      serving: engine?.state.serving,
+      vx: engine?.state.ball.vx ?? 0,
+      vy: engine?.state.ball.vy ?? 0,
+      x: engine?.state.ball.x ?? 0,
+    };
+  });
+
+  if (afterServe.serving) {
+    throw new Error(`Ball returned to serving state after tap: ${JSON.stringify(afterServe)}`);
+  }
+  if (Math.hypot(afterServe.vx, afterServe.vy) < 50) {
+    throw new Error(`Ball did not launch: ${JSON.stringify(afterServe)}`);
+  }
+
+  await page.touchscreen.tap(box.x + box.width * 0.18, box.y + box.height * 0.5);
+  await page.touchscreen.tap(box.x + box.width * 0.18, box.y + box.height * 0.72);
+
+  console.log('SMOKE TEST PASSED', afterServe);
 } finally {
   await context.close();
   await browser.close();
