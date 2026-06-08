@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1f3c"/>
+      <stop offset="100%" stop-color="#0a1628"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#bf0a30"/>
+      <stop offset="45%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#002868"/>
+    </linearGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <rect x="90" y="860" width="900" height="4" fill="url(#title)" opacity="0.5"/>
+  <text x="540" y="820" text-anchor="middle" fill="url(#title)" font-family="Segoe UI, system-ui, sans-serif" font-size="72" font-weight="700" letter-spacing="6">AUSTIN BUHL</text>
+  <text x="540" y="920" text-anchor="middle" fill="#e6edf3" font-family="Segoe UI, system-ui, sans-serif" font-size="56" font-weight="600" letter-spacing="18">GAMES</text>
+  <rect x="390" y="980" width="300" height="4" fill="url(#title)" opacity="0.5"/>
+</svg>

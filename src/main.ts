@@ -7,12 +7,12 @@ import { Renderer } from './game/renderer';
 import { DIFFICULTIES, MODE_INFO, type Difficulty, type GameMode } from './game/constants';
 import { ACHIEVEMENTS, loadStats, saveStats } from './game/storage';
 import { audio } from './game/audio';
+import { hideSplashScreen } from './splash';
 
 async function initCapacitor(engine: GameEngine): Promise<void> {
   try {
     await StatusBar.setStyle({ style: Style.Dark });
     await StatusBar.setBackgroundColor({ color: '#0a1628' });
-    await SplashScreen.hide();
   } catch {
     /* web dev */
   }
@@ -205,6 +205,12 @@ function loop(ts: number): void {
 }
 
 await initCapacitor(engine);
+await hideSplashScreen();
+try {
+  await SplashScreen.hide();
+} catch {
+  /* web dev */
+}
 requestAnimationFrame(loop);
 }
 
