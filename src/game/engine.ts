@@ -199,12 +199,17 @@ export class GameEngine {
     this.touchTargetY = y;
   }
 
-  isBallTap(x: number, y: number): boolean {
+  canServeFromTap(x: number, y: number): boolean {
     const s = this.state;
     if (s.phase !== 'playing' || !s.serving) return false;
+
     const ball = s.ball;
-    const tapRadius = Math.max(ball.radius * 3, 44);
-    return Math.hypot(x - ball.x, y - ball.y) <= tapRadius;
+    const ballRadius = Math.max(ball.radius * 4.5, 72);
+    if (Math.hypot(x - ball.x, y - ball.y) <= ballRadius) return true;
+
+    // Generous center-court tap while serving.
+    const centerRadius = Math.min(this.width, this.height) * 0.38;
+    return Math.hypot(x - this.width / 2, y - this.height / 2) <= centerRadius;
   }
 
   private resetBall(direction: number): void {
@@ -214,7 +219,7 @@ export class GameEngine {
     s.ball.y = this.height / 2;
     s.serving = true;
     s.serveDirection = direction;
-    s.serveTimer = s.autoServe ? 1.0 : 0;
+    s.serveTimer = 3.0;
     s.rallyCount = 0;
     s.combo = 0;
   }
@@ -399,10 +404,8 @@ export class GameEngine {
   private updateBall(dt: number): void {
     const s = this.state;
     if (s.serving) {
-      if (s.autoServe && s.serveTimer > 0) {
-        s.serveTimer -= dt;
-        if (s.serveTimer <= 0) this.serve();
-      }
+      s.serveTimer -= dt;
+      if (s.serveTimer <= 0) this.serve();
       return;
     }
 

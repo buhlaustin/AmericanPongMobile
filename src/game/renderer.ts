@@ -118,7 +118,7 @@ export class Renderer {
     this.drawPaddle(ctx, margin, s.playerY, pw, s.playerPaddleHeight, '#58a6ff', s.activePowerUps.some((p) => p.type === 'shield' && p.owner === 'player'));
     this.drawPaddle(ctx, w - margin - pw, s.cpuY, pw, s.cpuPaddleHeight, '#bf0a30', false);
     if (s.serving) {
-      this.drawServeHint(ctx, s.ball.x, s.ball.y, s.ball.radius);
+      this.drawServeHint(ctx, s.ball.x, s.ball.y, s.ball.radius, w, h);
     }
     this.drawBall(ctx, s.ball);
 
@@ -146,13 +146,18 @@ export class Renderer {
     ctx.fill();
   }
 
-  private drawServeHint(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number): void {
+  private drawServeHint(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, w: number, h: number): void {
     const pulse = 0.55 + Math.sin(performance.now() / 180) * 0.2;
     ctx.strokeStyle = `rgba(88, 166, 255, ${pulse})`;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(x, y, radius * 2.4, 0, Math.PI * 2);
+    ctx.arc(x, y, radius * 2.8, 0, Math.PI * 2);
     ctx.stroke();
+
+    ctx.fillStyle = 'rgba(230, 237, 243, 0.85)';
+    ctx.font = '600 14px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Tap ball to serve', w / 2, Math.min(h - 18, y + radius * 4));
   }
 
   private drawBall(ctx: CanvasRenderingContext2D, ball: { x: number; y: number; radius: number; ghost: boolean; trail: { x: number; y: number }[] }): void {

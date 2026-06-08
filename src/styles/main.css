@@ -132,8 +132,7 @@ body,
   pointer-events: auto;
 }
 
-#ui-layer #game-controls,
-#ui-layer #game-controls * {
+#btn-pause {
   pointer-events: auto;
 }
 
@@ -297,7 +296,8 @@ body,
 #touch-play-zone {
   position: absolute;
   inset: 0;
-  z-index: 12;
+  z-index: 24;
+  pointer-events: auto;
   touch-action: none;
 }
 
@@ -309,7 +309,7 @@ body,
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 25;
+  z-index: 26;
 }
 
 .control-btn {

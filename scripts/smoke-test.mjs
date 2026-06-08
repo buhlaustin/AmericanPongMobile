@@ -40,8 +40,12 @@ try {
   const box = await page.locator('#game-canvas').boundingBox();
   if (!box) throw new Error('Canvas missing');
 
-  await page.touchscreen.tap(box.x + box.width * 0.25, box.y + box.height * 0.5);
+  await page.locator('#touch-play-zone.serving').waitFor({ state: 'visible', timeout: 3000 });
   await page.touchscreen.tap(box.x + box.width * 0.5, box.y + box.height * 0.5);
+  await page.locator('#touch-play-zone.serving').waitFor({ state: 'hidden', timeout: 2000 });
+
+  await page.touchscreen.tap(box.x + box.width * 0.2, box.y + box.height * 0.5);
+  await page.touchscreen.tap(box.x + box.width * 0.2, box.y + box.height * 0.7);
 
   console.log('SMOKE TEST PASSED');
 } finally {

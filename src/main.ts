@@ -49,8 +49,8 @@ async function bootstrap(): Promise<void> {
   const mobileUI = new MobileUI(shell, engine);
   const touchControls = new TouchControls(shell, canvas, engine);
 
-  mobileUI.mount();
   touchControls.mount();
+  mobileUI.mount();
 
   engine.onStatsChange = (s) => void saveStats(s);
   engine.onAchievement = (id) => {
