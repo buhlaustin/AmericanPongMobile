@@ -67,7 +67,7 @@ export class GameEngine {
       screenShake: 0,
       slowMoFactor: 1,
       lastTime: 0,
-      autoServe: true,
+      autoServe: false,
       message: '',
       messageTimer: 0,
     };
