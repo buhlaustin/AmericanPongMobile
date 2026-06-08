@@ -26,9 +26,9 @@ npm install
 npm run android:build
 ```
 
-The debug APK will be at:
+The debug APK is saved to:
 
-`android/app/build/outputs/apk/debug/app-debug.apk`
+`public/AmericanPong.apk`
 
 ## Controls
 
