@@ -323,8 +323,8 @@ body,
 
 .control-pause {
   position: absolute;
-  top: max(10px, env(safe-area-inset-top));
-  right: max(10px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  right: max(12px, env(safe-area-inset-right));
   width: 48px;
   height: 48px;
   font-size: 1.1rem;

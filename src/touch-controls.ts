@@ -93,7 +93,7 @@ export class TouchControls {
     const margin = 72;
     return (
       clientX >= rect.right - margin &&
-      clientY <= rect.top + margin
+      clientY >= rect.bottom - margin
     );
   }
 

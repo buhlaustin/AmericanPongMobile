@@ -203,14 +203,21 @@ export class Renderer {
     ctx.fillStyle = 'rgba(10,22,40,0.75)';
     ctx.fillRect(0, 0, w, 44);
 
+    ctx.font = '600 10px system-ui';
+    ctx.fillStyle = '#8b949e';
+    ctx.textAlign = 'left';
+    ctx.fillText('YOU', 20, 14);
+
     ctx.font = 'bold 28px system-ui';
     ctx.fillStyle = '#58a6ff';
-    ctx.textAlign = 'left';
-    ctx.fillText(String(playerScore), 16, 32);
+    ctx.fillText(String(playerScore), 20, 32);
 
     ctx.fillStyle = '#bf0a30';
     ctx.textAlign = 'right';
-    ctx.fillText(String(cpuScore), w - 16, 32);
+    ctx.fillText(String(cpuScore), w - 20, 32);
+    ctx.font = '600 10px system-ui';
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('CPU', w - 20, 14);
 
     ctx.fillStyle = '#8b949e';
     ctx.font = '600 11px system-ui';
